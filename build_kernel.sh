@@ -1,22 +1,40 @@
 #!/bin/bash
+clear
 export clang_exynos=/home/ravindu/Desktop/toolchain/Exynos9820/clang/host/linux-x86/clang-4639204-cfp-jopp/bin
 export gcc_exynos=/home/ravindu/Desktop/toolchain/Exynos9820/gcc-cfp/gcc-cfp-jopp-only/aarch64-linux-android-4.9/bin
 export ARCH=arm64
 export PLATFORM_VERSION=12
 export ANDROID_MAJOR_VERSION=s
-export exynos_defconfig=modified_defconfig
+export exynos_defconfig=exynos9820-beyondxks_defconfig
 export mkdtimg=/home/ravindu/Downloads/mkdtimg
+work_dir=$(pwd)
+dt_tool=$work_dir/binaries
+rm -rf out && mkdir out
+
+dtb_img() {
+	chmod +777 $dt_tool/* -R
+	$dt_tool/mkdtimg cfg_create $work_dir/out/dtbo_beyondx.img $dt_tool/beyondx.cfg -d $work_dir/arch/arm64/boot/dts/samsung
+	$dt_tool/mkdtimg cfg_create $work_dir/out/dtb_beyondx.img $dt_tool/exynos9820.cfg -d $work_dir/arch/arm64/boot/dts/exynos
+	
+	}
+
 clean_build() {
     make clean && make mrproper
     make ARCH=arm64 $exynos_defconfig
     make menuconfig
     make -j16
+    dtb_img
+    cp $work_dir/arch/arm64/boot/Image $work_dir/out
+    echo "Task Finished !"    
 }
 
 dirty_build() {
     make ARCH=arm64 $exynos_defconfig
     make menuconfig
     make -j16
+    dtb_img
+    cp $work_dir/arch/arm64/boot/Image $work_dir/out
+    echo "Task Finished !"       
 }
 
 scratch() {
@@ -30,8 +48,8 @@ dirty() {
 
 dtb () {
 	make ARCH=arm64 $exynos_defconfig
-	make menuconfig
 	make dtbs
+	dtb_img
 	}
 	
 clean () {
