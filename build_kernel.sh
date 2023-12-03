@@ -1,7 +1,8 @@
 #!/bin/bash
 clear
-export clang_exynos=/home/ravindu/Desktop/toolchain/Exynos9820/clang/host/linux-x86/clang-4639204-cfp-jopp/bin
-export gcc_exynos=/home/ravindu/Desktop/toolchain/Exynos9820/gcc-cfp/gcc-cfp-jopp-only/aarch64-linux-android-4.9/bin
+export PATH=$HOME/Desktop/toolchain/Exynos9820/clang/host/linux-x86/clang-4639204-cfp-jopp/bin:$PATH
+export CROSS_COMPILE=$HOME/Desktop/toolchain/Exynos9820/gcc-cfp/gcc-cfp-jopp-only/aarch64-linux-android-4.9/bin/aarch64-linux-android-
+export CLANG_TRIPLE=$HOME/Desktop/toolchain/Exynos9820/clang/host/linux-x86/clang-4639204-cfp-jopp/bin/aarch64-linux-gnu-
 export ARCH=arm64
 export PLATFORM_VERSION=12
 export ANDROID_MAJOR_VERSION=s
@@ -20,9 +21,9 @@ dtb_img() {
 
 clean_build() {
     make clean && make mrproper
-    make ARCH=arm64 $exynos_defconfig
-    make menuconfig
-    make -j16
+    make ARCH=arm64 CC=clang $exynos_defconfig
+    make CC=clang menuconfig
+    make CC=clang -j$(nproc)
     dtb_img
     cp $work_dir/arch/arm64/boot/Image $work_dir/out
     echo "Task Finished !"    
